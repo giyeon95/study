@@ -19,10 +19,12 @@ public class Item {
     private Long itemId;
 
     private String name;
-    private int count;
+    private int price;
     private int stockQuantity;
 
     @OneToMany(mappedBy = "item")
     private List<OrderItem> orderItems = new ArrayList<>();
 
+    @OneToMany(mappedBy = "item")
+    private List<CategoryItem> categoryItems = new ArrayList<>();
 }

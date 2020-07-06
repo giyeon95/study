@@ -28,6 +28,12 @@ public class Order {
     @JoinColumn(name = "member_id")
     private Member member;
 
+
+    @OneToOne
+    @JoinColumn(name = "delivery_id")
+    private Delivery delivery;
+
+
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItem = new ArrayList<>();
 

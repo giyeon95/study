@@ -8,6 +8,9 @@
         <class>domain.Item</class>
         <class>domain.Order</class>
         <class>domain.OrderItem</class>
+        <class>domain.Category</class>
+        <class>domain.CategoryItem</class>
+        <class>domain.Delivery</class>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
             <property name="javax.persistence.jdbc.user" value="sa"/>
