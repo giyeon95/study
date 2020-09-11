@@ -27,7 +27,8 @@ rebel.xml
 **/target
  
 /example/
- 
+/Algorithm-Exam/
+
 # Gradle
 .gradle
 /build/
