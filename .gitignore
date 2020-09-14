@@ -27,7 +27,6 @@ rebel.xml
 **/target
  
 /example/
-/Algorithm-Exam/
 
 # Gradle
 .gradle
@@ -36,4 +35,3 @@ rebel.xml
  
 
 
-출처: https://ktko.tistory.com/entry/gitignore를-사용하여-깔끔하게-git-Commit-해보기 [KTKO 개발 블로그와 여행 일기]
