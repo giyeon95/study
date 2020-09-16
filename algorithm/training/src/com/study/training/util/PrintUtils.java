@@ -46,5 +46,29 @@ public class PrintUtils {
         }
     }
 
+    public static void printValue(int[] array, int pos) {
+        System.out.println("[" + pos + "] = " + array[pos]);
+    }
+
+    public static void printValue(boolean[] array, int pos) {
+        System.out.println("[" + pos + "] = " + array[pos]);
+    }
+
+    public static void printValue(String[] array, int pos) {
+        System.out.println("[" + pos + "] = " + array[pos]);
+    }
+
+    public static void printValue(int[][] array, int y, int x) {
+        System.out.println("arr[" + y + "][" + x + "]" + " = " + array[y][x]);
+    }
+
+    public static void printValue(boolean[][] array, int y, int x) {
+        System.out.println("arr[" + y + "][" + x + "]" + " = " + array[y][x]);
+    }
+
+    public static void printValue(String[][] array, int y, int x) {
+        System.out.println("arr[" + y + "][" + x + "]" + " = " + array[y][x]);
+    }
+
 
 }
