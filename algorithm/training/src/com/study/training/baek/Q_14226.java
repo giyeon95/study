@@ -20,11 +20,11 @@ public class Q_14226 {
             Arrays.fill(d[i], -1);
         }
 
-        System.out.println(dfs(s));
+        System.out.println(bfs(s));
 
     }
 
-    static int dfs(int n) {
+    static int bfs(int n) {
         Queue<Integer> q = new LinkedList<>();
         q.add(1);
         q.add(0);

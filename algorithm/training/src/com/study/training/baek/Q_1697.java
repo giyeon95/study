@@ -18,11 +18,11 @@ public class Q_1697 {
         int n = sc.nextInt();
         int k = sc.nextInt();
 
-        System.out.println(dfs(n, k));
+        System.out.println(bfs(n, k));
     }
 
 
-    static int dfs(int start, int dest) {
+    static int bfs(int start, int dest) {
         Queue<Integer> q = new LinkedList<>();
 
         q.add(start);

@@ -25,12 +25,12 @@ public class Q_1261 {
             }
         }
 
-        System.out.println(dfs(field, check));
+        System.out.println(bfs(field, check));
     }
 
     static int[][] pos = new int[][]{{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
 
-    static int dfs(int[][] field, boolean[][] check) {
+    static int bfs(int[][] field, boolean[][] check) {
         int ty = field.length - 1;
         int tx = field[0].length - 1;
 

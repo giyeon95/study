@@ -21,12 +21,12 @@ public class Q_7576 {
             }
         }
 
-        System.out.println(dfs(field));
+        System.out.println(bfs(field));
     }
 
     static int pos[][] = new int[][]{{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
 
-    static int dfs(int[][] field) throws Exception {
+    static int bfs(int[][] field) throws Exception {
         Queue<Item> queue = new LinkedList<>();
 
         for (int y = 0; y < field.length; y++) {

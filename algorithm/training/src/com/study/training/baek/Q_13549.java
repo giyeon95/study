@@ -13,10 +13,10 @@ public class Q_13549 {
         int n = sc.nextInt();
         int k = sc.nextInt();
 
-        System.out.println(dfs(n, k));
+        System.out.println(bfs(n, k));
     }
 
-    static int dfs(int n, int k) {
+    static int bfs(int n, int k) {
         Queue<Integer> q = new LinkedList<>();
         Queue<Integer> nextQueue = new LinkedList<>();
         boolean[] check = new boolean[MAX];
