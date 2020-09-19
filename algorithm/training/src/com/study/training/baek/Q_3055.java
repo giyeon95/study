@@ -1,77 +1,34 @@
 package com.study.training.baek;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.Queue;
+import java.util.Scanner;
 
 public class Q_3055 {
 
-    static int n;
-    static int m;
-    static int d[][];
-
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
-        String[] NM = br.readLine().split(" ");
-
-        n = Integer.parseInt(NM[0]);
-        m = Integer.parseInt(NM[1]);
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int m = sc.nextInt();
 
         char[][] field = new char[n][m];
-        d = new int[n][m];
 
         for (int y = 0; y < n; y++) {
-            field[y] = br.readLine().toCharArray();
-        }
-
-        int[][] wft = new int[n][m];
-
-        for (int y = 0; y < n; y++) {
-            Arrays.fill(wft[y], Integer.MAX_VALUE);
-            Arrays.fill(d[y], -1);
-        }
-
-        Queue<Item> q = new LinkedList<>();
-
-        for (int y = 0; y < field.length; y++) {
-            for (int x = 0; x < field[y].length; x++) {
-                if (field[y][x] == '*') {
-                    q.add(new Item(y, x));
-                    wft[y][x] = 0;
-                }
+            String line = sc.next();
+            for (int x = 0; x < m; x++) {
+                field[y][x] = line.charAt(x);
             }
         }
 
-        while (!q.isEmpty()) {
-            Item item = q.remove();
-            int y = item.y;
-            int x = item.x;
+        int[][] fillWaterTime = fillWaterTime(field);
 
-            for (int i = 0; i < 4; i++) {
-                int dy = y + pos[i][0];
-                int dx = x + pos[i][1];
+        String anw = dfs(field, fillWaterTime)
+            .map(Object::toString)
+            .orElse("KAKTUS");
 
-                if (inRange(dy, dx) && wft[dy][dx] == Integer.MAX_VALUE) {
-                    if (field[dy][dx] == 'X' || field[dy][dx] == 'D' || field[dy][dx] == 'S') {
-                    } else {
-                        q.add(new Item(dy, dx));
-                        wft[dy][dx] = wft[y][x] + 1;
-                    }
-                }
-            }
-        }
-
-        int anw = bfs(field, wft);
-
-        if (anw == -1) {
-            System.out.println("KAKTUS");
-        } else {
-            System.out.println(anw);
-        }
+        System.out.println(anw);
 
     }
 
@@ -79,15 +36,16 @@ public class Q_3055 {
         {-1, 0}, {0, 1}, {1, 0}, {0, -1}
     };
 
-    static int bfs(char[][] field, int[][] water) {
+    static Optional<Integer> dfs(char[][] field, int[][] water) {
         Queue<Item> q = new LinkedList<>();
+        boolean[][] check = new boolean[field.length][field[0].length];
 
         loop:
-        for (int y = 0; y < n; y++) {
-            for (int x = 0; x < m; x++) {
+        for (int y = 0; y < field.length; y++) {
+            for (int x = 0; x < field[y].length; x++) {
                 if (field[y][x] == 'S') {
-                    q.add(new Item(y, x));
-                    d[y][x] = 0;
+                    q.add(new Item(y, x, 0));
+                    check[y][x] = true;
                     break loop;
                 }
             }
@@ -95,48 +53,100 @@ public class Q_3055 {
 
         while (!q.isEmpty()) {
             Item item = q.remove();
-            int y = item.y;
-            int x = item.x;
 
-            if (field[y][x] == 'D') {
-                return d[y][x];
+            if (field[item.y][item.x] == 'D') {
+                return Optional.of(item.t);
             }
 
             for (int i = 0; i < pos.length; i++) {
                 int dy = item.y + pos[i][0];
                 int dx = item.x + pos[i][1];
+                int dt = item.t;
 
-                if (inRange(dy, dx) && water[dy][dx] > d[y][x] + 1 && d[dy][dx] == -1 && field[dy][dx] != 'X') {
-                    q.add(new Item(dy, dx));
-                    d[dy][dx] = d[y][x] + 1;
+                if (inRange(field, dy, dx) && water[dy][dx] > dt + 1 && check[dy][dx] == false && field[dy][dx] != 'X') {
+                    q.add(new Item(dy, dx, dt + 1));
+                    check[dy][dx] = true;
                 }
             }
         }
 
-        return -1;
+        return Optional.empty();
+    }
+
+    static int[][] fillWaterTime(char[][] field) {
+        int[][] wft = new int[field.length][field[0].length];
+
+        for (int y = 0; y < wft.length; y++) {
+            Arrays.fill(wft[y], Integer.MAX_VALUE);
+        }
+
+        Queue<Item> q = new LinkedList<>();
+
+        for (int y = 0; y < field.length; y++) {
+            for (int x = 0; x < field[y].length; x++) {
+                if (field[y][x] == '*') {
+                    q.add(new Item(y, x, 0));
+                    wft[y][x] = 0;
+                }
+            }
+        }
+
+        while (!q.isEmpty()) {
+            Item item = q.remove();
+
+            for (int i = 0; i < 4; i++) {
+                int dy = item.y + pos[i][0];
+                int dx = item.x + pos[i][1];
+                int dt = item.t;
+
+                if (inRangeWater(field, dy, dx) && wft[dy][dx] == Integer.MAX_VALUE) {
+                    q.add(new Item(dy, dx, dt + 1));
+                    wft[dy][dx] = dt + 1;
+                }
+            }
+        }
+        return wft;
     }
 
     static class Item {
 
         int y;
         int x;
+        int t;
 
-        private Item(int y, int x) {
+        private Item(int y, int x, int t) {
             this.y = y;
             this.x = x;
+            this.t = t;
         }
     }
 
-    static boolean inRange(int y, int x) {
+    static boolean inRange(char[][] field, int y, int x) {
+        int maxY = field.length;
+        int maxX = field[0].length;
 
-        if (y >= n || y < 0) {
+        if (y >= maxY || y < 0) {
             return false;
         }
-        if (x >= m || x < 0) {
+        if (x >= maxX || x < 0) {
             return false;
         }
 
         return true;
     }
+
+
+    static boolean inRangeWater(char[][] field, int y, int x) {
+        if (!inRange(field, y, x)) {
+            return false;
+        }
+
+        if (field[y][x] == 'X' || field[y][x] == 'D' || field[y][x] == 'S') {
+            return false;
+        }
+
+        return true;
+    }
+
 
 }
