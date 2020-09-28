@@ -1,5 +1,7 @@
 package com.study.training.util;
 
+import java.util.List;
+
 public class PrintUtils {
 
     private PrintUtils() {
@@ -42,6 +44,16 @@ public class PrintUtils {
             for (int j = 0; j < array[i].length; j++) {
                 System.out.print(array[i][j] + " ");
             }
+            System.out.println();
+        }
+    }
+
+    public static void print(List<List<Integer>> lists) {
+        for (int i = 0; i < lists.size(); i++) {
+            System.out.print(i + " : ");
+            lists.get(i).forEach(v -> {
+                System.out.print(v + " ");
+            });
             System.out.println();
         }
     }
