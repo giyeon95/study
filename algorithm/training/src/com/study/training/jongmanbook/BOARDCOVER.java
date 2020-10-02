@@ -1,4 +1,4 @@
-package com.study.training.beginner;
+package com.study.training.jongmanbook;
 
 import java.util.Scanner;
 
