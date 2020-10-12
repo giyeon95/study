@@ -1,0 +1,7 @@
+server:
+  port: 8080
+
+holoman:
+  name: "김기연"
+  term: 4213213
+
