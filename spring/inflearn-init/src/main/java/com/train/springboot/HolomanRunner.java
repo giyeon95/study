@@ -1,16 +1,16 @@
 package com.train.springboot;
 
 import com.custom.Holoman;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@RequiredArgsConstructor
 public class HolomanRunner implements ApplicationRunner {
 
-    @Autowired
-    Holoman holoman;
+    private final Holoman holoman;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
