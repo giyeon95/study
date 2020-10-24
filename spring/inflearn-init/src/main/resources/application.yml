@@ -5,3 +5,13 @@ holoman:
   name: "김기연"
   term: 4213213
 
+
+author:
+  name: kiyeon
+  age: ${random.int(0,100)}
+  full-name: ${author.name} Kim
+  session-timeout: 25s
+
+logging:
+  file:
+    path: logs
