@@ -2,9 +2,7 @@ package com.example.springmvcdemo.user;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.xpath;
@@ -23,13 +21,6 @@ public class UserControllerTest {
 
     @Autowired
     MockMvc mockMvc;
-
-    @Test
-    public void hello() throws Exception {
-        mockMvc.perform(get("/hello"))
-            .andExpect(status().isOk())
-            .andExpect(content().string("hello"));
-    }
 
     @Test
     public void createUser_JSON() throws Exception {
