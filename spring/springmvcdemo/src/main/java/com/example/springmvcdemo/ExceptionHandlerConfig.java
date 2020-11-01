@@ -13,7 +13,6 @@ public class ExceptionHandlerConfig {
     @ExceptionHandler({SampleException.class})
     public @ResponseBody
     ResponseEntity<SampleError> sampleErrorHandler(SampleException e) {
-
         return ResponseEntity.badRequest()
             .body(SampleError.builder()
                 .key("test")
