@@ -19,7 +19,7 @@ public class SampleController {
 
         EntityModel<Hello> helloEntityModel = EntityModel.of(hello);
         helloEntityModel.add(linkTo(
-            methodOn(SampleController.class).hello())
+            methodOn(this.getClass()))
             .withSelfRel()
         );
         return helloEntityModel;
