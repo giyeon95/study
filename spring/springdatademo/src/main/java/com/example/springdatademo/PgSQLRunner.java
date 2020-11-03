@@ -25,11 +25,11 @@ public class PgSQLRunner implements ApplicationRunner {
             System.out.println(connection.getMetaData().getUserName());
 
             Statement statement = connection.createStatement();
-            String sql = "CREATE TABLE account(ID INTEGER NOT NULL, name varchar (255), PRIMARY KEY (ID))";
+            String sql = "CREATE TABLE IF NOT EXISTS account(ID INTEGER NOT NULL, name varchar (255), PRIMARY KEY (ID))";
             statement.execute(sql);
         }
 
-        jdbcTemplate.execute("INSERT INTO account VALUES (1, 'kiyeon_kim')");
+//        jdbcTemplate.execute("INSERT INTO account VALUES (1, 'kiyeon_kim')");
 
     }
 }
