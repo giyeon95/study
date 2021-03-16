@@ -14,17 +14,19 @@ public abstract class UserRepository {
 
     @Setter
     private DataSource dataSource;
+    private JdbcContext jdbcContext;
 
     public UserRepository() {
 
     }
 
-    public UserRepository(DataSource dataSource) {
+    public UserRepository(DataSource dataSource, JdbcContext jdbcContext) {
         this.dataSource = dataSource;
+        this.jdbcContext = jdbcContext;
     }
 
     public void add(User user) throws SQLException {
-        jdbcContextWithStatementStrategy(c -> {
+        this.jdbcContext.workWithStatementStrategy(c -> {
             PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) "
                 + "values (?, ?, ?)");
 
@@ -79,18 +81,8 @@ public abstract class UserRepository {
     }
 
     public void deleteAll() throws SQLException {
-        jdbcContextWithStatementStrategy(c ->
+        this.jdbcContext.workWithStatementStrategy(c ->
             c.prepareStatement("delete from users")
         );
-    }
-
-    public void jdbcContextWithStatementStrategy(StatementStrategy stmt) throws SQLException {
-        try (Connection c = dataSource.getConnection();
-            PreparedStatement ps = stmt.makePreparedStatement(c)) {
-
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw e;
-        }
     }
 }

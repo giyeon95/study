@@ -18,18 +18,9 @@ import org.springframework.dao.EmptyResultDataAccessException;
 @SpringBootTest
 class RepositoryFactoryTest {
 
-    @MockBean
-    private RepositoryFactory repositoryFactory;
-
     private UserRepository repository;
 
     ApplicationContext context;
-
-
-    @Test
-    void injectionTest() {
-        assertNotNull(repositoryFactory);
-    }
 
     @BeforeEach
     void beforeEach() {
@@ -63,7 +54,6 @@ class RepositoryFactoryTest {
         int countAfterDelete = repository.getCount();
         assertEquals(0, countAfterDelete);
     }
-
 
 
     @Test

@@ -8,7 +8,7 @@ public class DUserRepository extends UserRepository{
     public DUserRepository() {
     }
 
-    public DUserRepository(DataSource dataSource) {
-        super(dataSource);
+    public DUserRepository(DataSource dataSource, JdbcContext jdbcContext) {
+        super(dataSource, jdbcContext);
     }
 }

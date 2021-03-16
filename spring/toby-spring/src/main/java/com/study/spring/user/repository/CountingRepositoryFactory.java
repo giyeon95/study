@@ -8,9 +8,10 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 @Configuration
 public class CountingRepositoryFactory {
+
     @Bean
     public UserRepository userRepository() {
-        return new DUserRepository(dataSource());
+        return new DUserRepository(dataSource(), jdbcContext());
     }
 
     @Bean
@@ -35,11 +36,8 @@ public class CountingRepositoryFactory {
         return datasource;
     }
 
-//    @Bean
-//    public UserRepository userRepository() {
-//        UserRepository userRepository = new DUserRepository();
-//        userRepository.setDataSource(dataSource());
-//
-//        return userRepository;
-//    }
+    @Bean
+    public JdbcContext jdbcContext() {
+        return new JdbcContext(dataSource());
+    }
 }

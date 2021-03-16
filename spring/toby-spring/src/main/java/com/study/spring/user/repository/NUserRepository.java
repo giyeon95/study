@@ -5,7 +5,7 @@ import javax.sql.DataSource;
 public class NUserRepository extends UserRepository {
 
 
-    public NUserRepository(DataSource dataSource) {
-        super(dataSource);
+    public NUserRepository(DataSource dataSource, JdbcContext jdbcContext) {
+        super(dataSource, jdbcContext);
     }
 }
