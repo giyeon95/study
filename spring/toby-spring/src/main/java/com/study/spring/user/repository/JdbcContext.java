@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 public class JdbcContext {
+
     private DataSource dataSource;
 
     public JdbcContext(DataSource dataSource) {
@@ -18,5 +19,9 @@ public class JdbcContext {
 
             ps.executeUpdate();
         }
+    }
+
+    public void executeSql(final String query) throws SQLException {
+        workWithStatementStrategy(c -> c.prepareStatement(query));
     }
 }

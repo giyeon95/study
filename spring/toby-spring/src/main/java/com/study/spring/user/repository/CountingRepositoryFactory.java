@@ -11,7 +11,7 @@ public class CountingRepositoryFactory {
 
     @Bean
     public UserRepository userRepository() {
-        return new DUserRepository(dataSource(), jdbcContext());
+        return new DUserRepository(dataSource());
     }
 
     @Bean
@@ -36,8 +36,8 @@ public class CountingRepositoryFactory {
         return datasource;
     }
 
-    @Bean
-    public JdbcContext jdbcContext() {
-        return new JdbcContext(dataSource());
-    }
+//    @Bean
+//    public JdbcContext jdbcContext() {
+//        return new JdbcContext(dataSource());
+//    }
 }

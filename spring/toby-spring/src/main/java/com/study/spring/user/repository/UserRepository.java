@@ -20,9 +20,9 @@ public abstract class UserRepository {
 
     }
 
-    public UserRepository(DataSource dataSource, JdbcContext jdbcContext) {
+    public UserRepository(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.jdbcContext = jdbcContext;
+        this.jdbcContext = new JdbcContext(dataSource);
     }
 
     public void add(User user) throws SQLException {
@@ -81,8 +81,6 @@ public abstract class UserRepository {
     }
 
     public void deleteAll() throws SQLException {
-        this.jdbcContext.workWithStatementStrategy(c ->
-            c.prepareStatement("delete from users")
-        );
+        this.jdbcContext.executeSql("delete from users");
     }
 }
