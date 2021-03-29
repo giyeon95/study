@@ -8,15 +8,18 @@ import java.io.IOException;
 public class Calculator {
 
     public Integer calcSum(File file) throws IOException {
-        return fileReadTemplate(file, br -> {
-            int sum = 0;
+        return lineReadTemplate(file,
+            (line, value) ->
+                value + Integer.parseInt(line),
+            0);
+    }
 
-            String line;
-            while ((line = br.readLine()) != null) {
-                sum += Integer.parseInt(line);
-            }
-            return sum;
-        });
+    public Integer calcMultiply(File file) throws IOException {
+
+        return lineReadTemplate(file,
+            (line, value) ->
+                value * Integer.parseInt(line),
+            1);
     }
 
     public Integer fileReadTemplate(File file, BufferedReaderCallback callback)
@@ -24,6 +27,19 @@ public class Calculator {
 
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             return callback.doSomethingWithReader(br);
+        }
+    }
+
+    public Integer lineReadTemplate(File file, LineCallback callback, int initVal)
+        throws IOException {
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            Integer res = initVal;
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                res = callback.doSomethingWithLine(line, res);
+            }
+            return res;
         }
     }
 }
