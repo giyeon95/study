@@ -4,10 +4,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import org.apache.logging.log4j.util.Strings;
 
 public class Calculator {
 
     public Integer calcSum(File file) throws IOException {
+
         return lineReadTemplate(file,
             (line, value) ->
                 value + Integer.parseInt(line),
@@ -22,18 +24,10 @@ public class Calculator {
             1);
     }
 
-    public Integer fileReadTemplate(File file, BufferedReaderCallback callback)
-        throws IOException {
-
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            return callback.doSomethingWithReader(br);
-        }
-    }
-
-    public Integer lineReadTemplate(File file, LineCallback callback, int initVal)
+    public <T> T lineReadTemplate(File file, LineCallback<T> callback, T initVal)
         throws IOException {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            Integer res = initVal;
+            T res = initVal;
             String line;
 
             while ((line = br.readLine()) != null) {
@@ -41,5 +35,12 @@ public class Calculator {
             }
             return res;
         }
+    }
+
+    public String concatenate(File file) throws IOException {
+        return lineReadTemplate(file,
+            (line, value) ->
+                value + line,
+            Strings.EMPTY);
     }
 }

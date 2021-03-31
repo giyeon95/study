@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 import lombok.Setter;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 public abstract class UserRepository {
 
@@ -75,8 +76,6 @@ public abstract class UserRepository {
             rs.next();
 
             return rs.getInt(1);
-        } catch (SQLException e) {
-            throw e;
         }
     }
 
