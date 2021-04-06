@@ -1,7 +1,9 @@
 package com.study.spring.user.repository;
 
 import com.study.spring.config.ConnectionMaker;
+import com.study.spring.user.domain.User;
 import javax.sql.DataSource;
+import javax.swing.tree.RowMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;

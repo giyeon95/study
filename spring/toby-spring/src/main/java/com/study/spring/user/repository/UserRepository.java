@@ -1,34 +1,34 @@
 package com.study.spring.user.repository;
 
-import com.study.spring.config.ConnectionMaker;
 import com.study.spring.user.domain.User;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import javax.sql.DataSource;
 import lombok.Setter;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 
 public abstract class UserRepository {
 
     @Setter
     private DataSource dataSource;
-    private JdbcContext jdbcContext;
     private JdbcTemplate jdbcTemplate;
+
+    private final RowMapper<User> rowMapper =
+        (rs, rowNum) -> User.builder()
+            .id(rs.getString("id"))
+            .name(rs.getString("name"))
+            .password(rs.getString("password"))
+            .build();
 
     public UserRepository() {
 
     }
 
     public UserRepository(DataSource dataSource) {
-        this.dataSource = dataSource;
-        this.jdbcContext = new JdbcContext(dataSource);
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
@@ -38,35 +38,15 @@ public abstract class UserRepository {
     }
 
     public User get(String id) throws SQLException {
-        Connection c = dataSource.getConnection();
-
-        PreparedStatement ps = c.prepareStatement("select * from users where id = ?");
-        ps.setString(1, id);
-
-        ResultSet rs = ps.executeQuery();
-
-        rs.next();
-        User user = null;
-        if (rs.next()) {
-            user = User.builder()
-                .id(rs.getString("id"))
-                .name(rs.getString("name"))
-                .password(rs.getString("password"))
-                .build();
-
-        }
-        rs.close();
-        ps.close();
-        c.close();
-
-        if (user == null) {
-            throw new EmptyResultDataAccessException(1);
-        }
-
-        return user;
+        return jdbcTemplate.queryForObject("select * from users where id = ?", rowMapper);
     }
 
-    public Integer getCount() throws SQLException {
+    public List<User> getAll() throws SQLException {
+        return jdbcTemplate.query("select * from users order by id", rowMapper);
+
+    }
+
+    public int getCount() throws SQLException {
         return jdbcTemplate.queryForObject("select count(*) from users", Integer.class);
     }
 
