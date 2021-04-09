@@ -1,13 +1,11 @@
 package com.study.spring.user.repository;
 
 import com.study.spring.user.domain.User;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.sql.DataSource;
 import lombok.Setter;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -32,13 +30,13 @@ public abstract class UserRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void add(User user) throws SQLException {
-        jdbcTemplate.update("insert into users(id, name, password) values (?, ?, ?)",
-            user.getId(), user.getName(), user.getPassword());
-    }
+    public void add(User user) {
+            jdbcTemplate.update("insert into users(id, name, password) values (?, ?, ?)",
+                user.getId(), user.getName(), user.getPassword());
+   }
 
     public User get(String id) throws SQLException {
-        return jdbcTemplate.queryForObject("select * from users where id = ?", rowMapper);
+        return jdbcTemplate.queryForObject("select * from users where id = ?", rowMapper, id);
     }
 
     public List<User> getAll() throws SQLException {
