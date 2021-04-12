@@ -1,54 +1,18 @@
 package com.study.spring.user.repository;
 
 import com.study.spring.user.domain.User;
-import java.sql.SQLException;
 import java.util.List;
-import javax.sql.DataSource;
-import lombok.Setter;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
-public abstract class UserRepository {
+public interface UserRepository {
 
-    @Setter
-    private DataSource dataSource;
-    private JdbcTemplate jdbcTemplate;
+    void add(User user);
 
-    private final RowMapper<User> rowMapper =
-        (rs, rowNum) -> User.builder()
-            .id(rs.getString("id"))
-            .name(rs.getString("name"))
-            .password(rs.getString("password"))
-            .build();
+    User get(String id);
 
-    public UserRepository() {
+    List<User> getAll();
 
-    }
+    void deleteAll();
 
-    public UserRepository(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }
+    int getCount();
 
-    public void add(User user) {
-            jdbcTemplate.update("insert into users(id, name, password) values (?, ?, ?)",
-                user.getId(), user.getName(), user.getPassword());
-   }
-
-    public User get(String id) throws SQLException {
-        return jdbcTemplate.queryForObject("select * from users where id = ?", rowMapper, id);
-    }
-
-    public List<User> getAll() throws SQLException {
-        return jdbcTemplate.query("select * from users order by id", rowMapper);
-
-    }
-
-    public int getCount() throws SQLException {
-        return jdbcTemplate.queryForObject("select count(*) from users", Integer.class);
-    }
-
-    public void deleteAll() throws SQLException {
-        jdbcTemplate.update("delete from users");
-    }
 }

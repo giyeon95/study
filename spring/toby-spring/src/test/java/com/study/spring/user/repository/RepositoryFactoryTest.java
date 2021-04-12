@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.study.spring.user.domain.Level;
 import com.study.spring.user.domain.User;
 import java.sql.SQLException;
 import java.util.List;
@@ -17,14 +18,44 @@ import org.springframework.dao.EmptyResultDataAccessException;
 @SpringBootTest
 class RepositoryFactoryTest {
 
-    private UserRepository repository;
+    private UserRepositoryJdbc repository;
 
     ApplicationContext context;
 
+
+    private User user1;
+    private User user2;
+    private User user3;
+
+
     @BeforeEach
     void beforeEach() {
-        this.context = new AnnotationConfigApplicationContext(CountingRepositoryFactory.class);
-        this.repository = context.getBean("userRepository", UserRepository.class);
+        this.context = new AnnotationConfigApplicationContext(AppConfig.class);
+        this.repository = context.getBean("userRepository", UserRepositoryJdbc.class);
+
+        this.user1 = User.builder().id("kiyeon")
+            .name("김기연")
+            .password("1234")
+            .level(Level.BASIC)
+            .login(1)
+            .recommend(0)
+            .build();
+
+        this.user2 = User.builder().id("leegw700")
+            .name("이길원")
+            .password("1234")
+            .level(Level.SILVER)
+            .login(55)
+            .recommend(10)
+            .build();
+
+        this.user3 = User.builder().id("bumjin")
+            .name("박범진")
+            .password("1234")
+            .level(Level.GOLD)
+            .login(100)
+            .recommend(40)
+            .build();
     }
 
 
@@ -32,20 +63,11 @@ class RepositoryFactoryTest {
     void userRepositoryCountingTest() throws SQLException {
 
         repository.deleteAll();
-        repository.add(User.builder()
-            .id("kiyeon")
-            .name("TESTUSER")
-            .password("pw")
-            .build()
-        );
+        repository.add(user1);
 
         assertEquals(1, repository.getCount()); // getCount TEST
 
-        repository.add(User.builder()
-            .id("kiyeon2")
-            .name("TEST2")
-            .password("pw3")
-            .build());
+        repository.add(user2);
 
         assertEquals(2, repository.getCount()); // getCount2
 
@@ -82,6 +104,9 @@ class RepositoryFactoryTest {
             .id("user1")
             .name("u1")
             .password("p1")
+            .level(Level.BASIC)
+            .login(55)
+            .recommend(0)
             .build();
 
         repository.add(user1);
@@ -95,6 +120,9 @@ class RepositoryFactoryTest {
             .id("kiyeon95")
             .name("k2")
             .password("p2")
+            .level(Level.GOLD)
+            .login(57)
+            .recommend(0)
             .build();
         repository.add(user2);
 
@@ -107,6 +135,9 @@ class RepositoryFactoryTest {
             .id("abc1")
             .name("u3")
             .password("p3")
+            .level(Level.BASIC)
+            .login(1)
+            .recommend(10)
             .build();
         repository.add(user3);
         List<User> users3 = repository.getAll();
@@ -121,6 +152,9 @@ class RepositoryFactoryTest {
         assertThat(user1.getId()).isEqualTo(user2.getId());
         assertThat(user1.getName()).isEqualTo(user2.getName());
         assertThat(user1.getPassword()).isEqualTo(user2.getPassword());
+        assertThat(user1.getLevel()).isEqualTo(user2.getLevel());
+        assertThat(user1.getLogin()).isEqualTo(user2.getLogin());
+        assertThat(user1.getRecommend()).isEqualTo(user2.getRecommend());
 
     }
 }
