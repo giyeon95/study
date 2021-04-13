@@ -33,28 +33,31 @@ class RepositoryFactoryTest {
         this.context = new AnnotationConfigApplicationContext(AppConfig.class);
         this.repository = context.getBean("userRepository", UserRepositoryJdbc.class);
 
-        this.user1 = User.builder().id("kiyeon")
-            .name("김기연")
-            .password("1234")
+        this.user1 = User.builder()
+            .id("user1")
+            .name("u1")
+            .password("p1")
             .level(Level.BASIC)
-            .login(1)
+            .login(55)
             .recommend(0)
             .build();
 
-        this.user2 = User.builder().id("leegw700")
-            .name("이길원")
-            .password("1234")
-            .level(Level.SILVER)
-            .login(55)
-            .recommend(10)
+        this.user2 = User.builder()
+            .id("kiyeon95")
+            .name("k2")
+            .password("p2")
+            .level(Level.GOLD)
+            .login(57)
+            .recommend(0)
             .build();
 
-        this.user3 = User.builder().id("bumjin")
-            .name("박범진")
-            .password("1234")
-            .level(Level.GOLD)
-            .login(100)
-            .recommend(40)
+        this.user3 = User.builder()
+            .id("abc1")
+            .name("u3")
+            .password("p3")
+            .level(Level.BASIC)
+            .login(1)
+            .recommend(10)
             .build();
     }
 
@@ -100,15 +103,6 @@ class RepositoryFactoryTest {
     void getUserAllTest() throws SQLException {
         repository.deleteAll();
 
-        User user1 = User.builder()
-            .id("user1")
-            .name("u1")
-            .password("p1")
-            .level(Level.BASIC)
-            .login(55)
-            .recommend(0)
-            .build();
-
         repository.add(user1);
 
         List<User> users1 = repository.getAll();
@@ -116,14 +110,7 @@ class RepositoryFactoryTest {
         assertThat(users1.size()).isEqualTo(1);
         checkSameUser(user1, users1.get(0));
 
-        User user2 = User.builder()
-            .id("kiyeon95")
-            .name("k2")
-            .password("p2")
-            .level(Level.GOLD)
-            .login(57)
-            .recommend(0)
-            .build();
+
         repository.add(user2);
 
         List<User> users2 = repository.getAll();
@@ -131,14 +118,7 @@ class RepositoryFactoryTest {
         checkSameUser(user2, users2.get(0)); // id abc 정렬
         checkSameUser(user1, users2.get(1));
 
-        User user3 = User.builder()
-            .id("abc1")
-            .name("u3")
-            .password("p3")
-            .level(Level.BASIC)
-            .login(1)
-            .recommend(10)
-            .build();
+
         repository.add(user3);
         List<User> users3 = repository.getAll();
         assertThat(users3.size()).isEqualTo(3);
@@ -146,6 +126,32 @@ class RepositoryFactoryTest {
         checkSameUser(user3, users3.get(0));
         checkSameUser(user2, users3.get(1));
         checkSameUser(user1, users3.get(2));
+    }
+
+
+    @Test
+    void updateTest() {
+        repository.deleteAll();
+
+        repository.add(user1);
+        repository.add(user2);
+
+        user1.setName("김기연");
+        user1.setPassword("update01");
+        user1.setLevel(Level.GOLD);
+        user1.setLogin(1000);
+        user1.setRecommend(999);
+
+        repository.update(user1);
+
+        User updateUser1 = repository.get(user1.getId());
+
+        checkSameUser(user1, updateUser1);
+        User nonUpdateUser2 = repository.get(user2.getId());
+
+        checkSameUser(user2, nonUpdateUser2);
+
+
     }
 
     private void checkSameUser(User user1, User user2) {

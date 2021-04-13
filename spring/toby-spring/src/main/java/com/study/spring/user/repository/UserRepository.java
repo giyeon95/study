@@ -15,4 +15,5 @@ public interface UserRepository {
 
     int getCount();
 
+    void update(User user);
 }
