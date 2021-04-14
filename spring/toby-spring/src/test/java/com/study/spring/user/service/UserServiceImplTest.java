@@ -53,6 +53,25 @@ class UserServiceImplTest {
 
     }
 
+    @Test
+    @DisplayName("생성시 Level이 없으면 BASIC 존재시 유지한다.")
+    void addLevelTest() {
+        userRepository.deleteAll();
+
+        User userWithLevel = users.get(4);
+        User userWithoutLevel = users.get(0);
+        userWithoutLevel.setLevel(null);
+
+        userService.add(userWithLevel);
+        userService.add(userWithoutLevel);
+
+        User userWithLevelRead = userRepository.get(userWithLevel.getId());
+        User userWithoutLevelRead = userRepository.get(userWithoutLevel.getId());
+
+        assertThat(userWithLevelRead.getLevel()).isEqualTo(userWithLevel.getLevel());
+        assertThat(userWithoutLevelRead.getLevel()).isEqualTo(Level.BASIC);
+
+    }
 
     private void checkLevel(User user, Level expectedLevel) {
         User userUpdate = userRepository.get(user.getId());
