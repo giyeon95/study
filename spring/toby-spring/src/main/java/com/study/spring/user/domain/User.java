@@ -29,4 +29,15 @@ public class User {
         this.login = login;
         this.recommend = recommend;
     }
+
+    public User upgradeLevel() {
+        Level nextLevel = this.level.nextLevel();
+        if (nextLevel == null) {
+            throw new IllegalStateException(this.level + "은 업그레이드 불가");
+        } else {
+            this.level = nextLevel;
+        }
+
+        return this;
+    }
 }

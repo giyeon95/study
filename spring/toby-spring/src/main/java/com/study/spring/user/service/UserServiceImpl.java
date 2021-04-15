@@ -16,31 +16,33 @@ public class UserServiceImpl implements UserService {
     @Override
     public void upgradeLevels() {
         List<User> users = userRepository.getAll();
-        users.forEach(user -> {
-            boolean changed = false;
 
-            if (user.getLevel() == Level.BASIC && user.getLogin() >= 50) {
-                user.setLevel(Level.SILVER);
-                changed = true;
-            } else if (user.getLevel() == Level.SILVER && user.getRecommend() >= 30) {
-                user.setLevel(Level.GOLD);
-                changed = true;
-            } else if (user.getLevel() == Level.GOLD) {
-                changed = false;
-            }
-
-            if (changed) {
-                userRepository.update(user);
-            }
-        });
-
+        users.stream()
+            .filter(this::canUpgradeLevel)
+            .map(User::upgradeLevel)
+            .forEach(userRepository::update);
     }
 
     @Override
     public void add(User user) {
-        if(user.getLevel() == null) {
+        if (user.getLevel() == null) {
             user.setLevel(Level.BASIC);
         }
         userRepository.add(user);
+    }
+
+
+    private boolean canUpgradeLevel(User user) {
+        Level currentLevel = user.getLevel();
+        switch (currentLevel) {
+            case BASIC:
+                return (user.getLogin() >= 50);
+            case SILVER:
+                return (user.getRecommend() >= 30);
+            case GOLD:
+                return false;
+            default:
+                throw new IllegalArgumentException("Unknown Level: " + currentLevel);
+        }
     }
 }

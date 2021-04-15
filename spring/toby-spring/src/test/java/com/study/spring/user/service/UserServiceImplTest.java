@@ -30,11 +30,11 @@ class UserServiceImplTest {
     @BeforeEach
     void setUp() {
         users = Arrays.asList(
-            new User("bumjin", "박범진", "p1", Level.BASIC, 49, 0),
-            new User("joytouch", "강명성", "p2", Level.BASIC, 50, 0),
-            new User("erwins", "신승한", "p3", Level.SILVER, 60, 29),
-            new User("madnite1", "이상호", "p4", Level.SILVER, 60, 30),
-            new User("green", "오민규", "p5", Level.GOLD, 100, 100)
+            new User("abumjin", "박범진", "p1", Level.BASIC, 49, 0),
+            new User("bjoytouch", "강명성", "p2", Level.BASIC, 50, 0),
+            new User("cerwins", "신승한", "p3", Level.SILVER, 60, 29),
+            new User("dmadnite1", "이상호", "p4", Level.SILVER, 60, 30),
+            new User("egreen", "오민규", "p5", Level.GOLD, 100, 100)
         );
     }
 
