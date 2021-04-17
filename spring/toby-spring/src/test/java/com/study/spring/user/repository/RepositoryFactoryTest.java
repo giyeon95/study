@@ -18,7 +18,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 @SpringBootTest
 class RepositoryFactoryTest {
 
-    private UserRepositoryJdbc repository;
+    private UserRepositoryImpl repository;
 
     ApplicationContext context;
 
@@ -31,12 +31,13 @@ class RepositoryFactoryTest {
     @BeforeEach
     void beforeEach() {
         this.context = new AnnotationConfigApplicationContext(AppConfig.class);
-        this.repository = context.getBean("userRepository", UserRepositoryJdbc.class);
+        this.repository = context.getBean("userRepository", UserRepositoryImpl.class);
 
         this.user1 = User.builder()
             .id("user1")
             .name("u1")
             .password("p1")
+            .email("giyeon15@gmail.com")
             .level(Level.BASIC)
             .login(55)
             .recommend(0)
@@ -46,6 +47,7 @@ class RepositoryFactoryTest {
             .id("kiyeon95")
             .name("k2")
             .password("p2")
+            .email("giyeon15@gmail.com")
             .level(Level.GOLD)
             .login(57)
             .recommend(0)
@@ -55,6 +57,7 @@ class RepositoryFactoryTest {
             .id("abc1")
             .name("u3")
             .password("p3")
+            .email("giyeon15@gmail.com")
             .level(Level.BASIC)
             .login(1)
             .recommend(10)

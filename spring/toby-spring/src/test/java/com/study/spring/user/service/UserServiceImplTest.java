@@ -5,6 +5,7 @@ import static com.study.spring.user.service.DefaultUserLevelUpgradePolicy.MIN_RE
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
+import com.study.spring.email.EmailUtils;
 import com.study.spring.user.domain.Level;
 import com.study.spring.user.domain.User;
 import com.study.spring.user.repository.AppConfig;
@@ -12,44 +13,50 @@ import com.study.spring.user.repository.UserRepository;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
-import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
 
 @SpringBootTest(classes = AppConfig.class)
 class UserServiceImplTest {
 
-    private final  UserService userService;
+    private final UserService userService;
     private final UserRepository userRepository;
     private final UserLevelUpgradePolicy userLevelUpgradePolicy;
-    private final DataSource dataSource;
+    private final PlatformTransactionManager transactionManager;
+    private final EmailUtils emailUtils;
 
     List<User> users;
 
     @Autowired
     public UserServiceImplTest(UserService userService,
         UserRepository userRepository,
-        UserLevelUpgradePolicy userLevelUpgradePolicy, DataSource dataSource) {
+        UserLevelUpgradePolicy userLevelUpgradePolicy,
+        PlatformTransactionManager transactionManager,
+        EmailUtils emailUtils) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.userLevelUpgradePolicy = userLevelUpgradePolicy;
-        this.dataSource = dataSource;
+        this.transactionManager = transactionManager;
+        this.emailUtils = emailUtils;
     }
 
     @BeforeEach
     void setUp() {
         users = Arrays.asList(
-            new User("abumjin", "박범진", "p1", Level.BASIC, MIN_LOG_COUNT_FOR_SILVER - 1, 0),
-            new User("bjoytouch", "강명성", "p2", Level.BASIC, MIN_LOG_COUNT_FOR_SILVER, 0),
-            new User("cerwins", "신승한", "p3", Level.SILVER, 60, MIN_RECOMMEND_FOR_GOLD - 1),
-            new User("dmadnite1", "이상호", "p4", Level.SILVER, 60, MIN_RECOMMEND_FOR_GOLD),
-            new User("egreen", "오민규", "p5", Level.GOLD, 100, Integer.MAX_VALUE)
+            new User("abumjin", "박범진", "p1", "giyeon15@gmail.com", Level.BASIC,
+                MIN_LOG_COUNT_FOR_SILVER - 1, 0),
+            new User("bjoytouch", "강명성", "p2", "giyeon15@gmail.com", Level.BASIC,
+                MIN_LOG_COUNT_FOR_SILVER, 0),
+            new User("cerwins", "신승한", "p3", "giyeon15@gmail.com", Level.SILVER, 60,
+                MIN_RECOMMEND_FOR_GOLD - 1),
+            new User("dmadnite1", "이상호", "p4", "giyeon15@gmail.com", Level.SILVER, 60,
+                MIN_RECOMMEND_FOR_GOLD),
+            new User("egreen", "오민규", "p5", "giyeon15@gmail.com", Level.GOLD, 100,
+                Integer.MAX_VALUE)
         );
     }
 
@@ -91,7 +98,8 @@ class UserServiceImplTest {
     @DisplayName("강제 예외 발생을 통한 테스트")
     void upgradeAllOrNoting() {
 
-        TestUserService testUserService = new TestUserService(userRepository, userLevelUpgradePolicy, dataSource);
+        TestUserService testUserService = new TestUserService(userRepository,
+            userLevelUpgradePolicy, transactionManager, emailUtils);
         testUserService.setId("dmadnite1");
         userRepository.deleteAll();
         users.forEach(userRepository::add);
@@ -140,8 +148,10 @@ class UserServiceImplTest {
         }
 
         public TestUserService(UserRepository userRepository,
-            UserLevelUpgradePolicy userLevelUpgradePolicy, DataSource dataSource) {
-            super(userRepository, userLevelUpgradePolicy, dataSource);
+            UserLevelUpgradePolicy userLevelUpgradePolicy,
+            PlatformTransactionManager transactionManager,
+            EmailUtils emailUtils) {
+            super(userRepository, userLevelUpgradePolicy, transactionManager, emailUtils);
         }
     }
 }
