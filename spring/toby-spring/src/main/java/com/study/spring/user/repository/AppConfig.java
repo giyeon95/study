@@ -1,6 +1,7 @@
 package com.study.spring.user.repository;
 
-import com.study.spring.config.ConnectionMaker;
+import com.study.spring.user.service.DefaultUserLevelUpgradePolicy;
+import com.study.spring.user.service.UserLevelUpgradePolicy;
 import com.study.spring.user.service.UserService;
 import com.study.spring.user.service.UserServiceImpl;
 import javax.sql.DataSource;
@@ -18,16 +19,20 @@ public class AppConfig {
 
     @Bean
     public UserService userService() {
-        return new UserServiceImpl(userRepository());
+        return new UserServiceImpl(userRepository(), userLevelUpgradePolicy(), dataSource());
     }
 
+    @Bean
+    public UserLevelUpgradePolicy userLevelUpgradePolicy() {
+        return new DefaultUserLevelUpgradePolicy();
+    }
 
     @Bean
     public DataSource dataSource() {
         SimpleDriverDataSource datasource = new SimpleDriverDataSource();
 
         datasource.setDriverClass(org.mariadb.jdbc.Driver.class);
-        datasource.setUrl("jdbc:mariadb://localhost/test");
+        datasource.setUrl("jdbc:mariadb://localhost:13306/test");
         datasource.setUsername("root");
         datasource.setPassword("1234");
 

@@ -7,22 +7,31 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.study.spring.user.domain.Level;
 import com.study.spring.user.domain.User;
+import com.study.spring.user.repository.AppConfig;
+import com.study.spring.user.service.DefaultUserLevelUpgradePolicy;
+import com.study.spring.user.service.UserLevelUpgradePolicy;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class UserTest {
 
     User user;
+    UserLevelUpgradePolicy userLevelUpgradePolicy;
 
     @BeforeEach
     void beforeEach() {
         user = new User();
+        ApplicationContext ac = new AnnotationConfigApplicationContext(AppConfig.class);
+        this.userLevelUpgradePolicy = ac
+            .getBean("userLevelUpgradePolicy", UserLevelUpgradePolicy.class);
     }
 
     @Test
-    @DisplayName("레벨업이 잘 업데이트 되야한다.")
+    @DisplayName("최고레벨이 아닌경우, 다음 레벨로 변경된다.")
     void upgradeLevel() {
         Level[] levels = Level.values();
 
@@ -30,7 +39,7 @@ public class UserTest {
             .filter(level -> nonNull(level.nextLevel()))
             .forEach(level -> {
                 user.setLevel(level);
-                user.upgradeLevel();
+                userLevelUpgradePolicy.upgradeLevel(user);
                 assertThat(user.getLevel()).isEqualTo(level.nextLevel());
             });
     }
@@ -43,7 +52,8 @@ public class UserTest {
             .filter(level -> isNull(level.nextLevel()))
             .forEach(level -> {
                 user.setLevel(level);
-                assertThrows(IllegalStateException.class, () -> user.upgradeLevel());
+                assertThrows(IllegalStateException.class,
+                    () -> userLevelUpgradePolicy.upgradeLevel(user));
             });
     }
 
