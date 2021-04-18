@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserLevelUpgradePolicy userLevelUpgradePolicy;
     private final PlatformTransactionManager transactionManager;
-    private final EmailUtils emailUtils;
+    private EmailUtils emailUtils;
 
     public UserServiceImpl(UserRepository userRepository,
         UserLevelUpgradePolicy userLevelUpgradePolicy,
@@ -30,6 +30,10 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
         this.userLevelUpgradePolicy = userLevelUpgradePolicy;
         this.transactionManager = transactionManager;
+        this.emailUtils = emailUtils;
+    }
+
+    public void setEmailUtils(EmailUtils emailUtils) {
         this.emailUtils = emailUtils;
     }
 
@@ -57,14 +61,14 @@ public class UserServiceImpl implements UserService {
         if (userLevelUpgradePolicy.canUpgradeLevel(user)) {
             User upgradeUser = userLevelUpgradePolicy.upgradeLevel(user);
             userRepository.update(upgradeUser);
-        }
 
-        emailUtils.send(
-            EmailDTO.builder()
-                .receiver(user.getEmail())
-                .subject("Upgrade 안내")
-                .contents("사용자님의 등급이" + user.getLevel().name() + "로 업그레이드 되었습니다.")
-                .build());
+            emailUtils.send(
+                EmailDTO.builder()
+                    .receiver(user.getEmail())
+                    .subject("Upgrade 안내")
+                    .contents("사용자님의 등급이" + user.getLevel().name() + "로 업그레이드 되었습니다.")
+                    .build());
+        }
     }
 
 

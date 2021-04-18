@@ -27,9 +27,6 @@ dependencies {
     compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client'
 
 
-    implementation group: 'javax.mail', name: 'javax.mail-api'
-
-
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

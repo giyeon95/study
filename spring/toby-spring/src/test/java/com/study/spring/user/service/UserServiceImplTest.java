@@ -5,12 +5,14 @@ import static com.study.spring.user.service.DefaultUserLevelUpgradePolicy.MIN_RE
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
+import com.study.spring.email.EmailDTO;
 import com.study.spring.email.EmailUtils;
 import com.study.spring.user.domain.Level;
 import com.study.spring.user.domain.User;
 import com.study.spring.user.repository.AppConfig;
 import com.study.spring.user.repository.UserRepository;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @SpringBootTest(classes = AppConfig.class)
@@ -27,7 +30,6 @@ class UserServiceImplTest {
     private final UserRepository userRepository;
     private final UserLevelUpgradePolicy userLevelUpgradePolicy;
     private final PlatformTransactionManager transactionManager;
-    private final EmailUtils emailUtils;
 
     List<User> users;
 
@@ -41,7 +43,6 @@ class UserServiceImplTest {
         this.userRepository = userRepository;
         this.userLevelUpgradePolicy = userLevelUpgradePolicy;
         this.transactionManager = transactionManager;
-        this.emailUtils = emailUtils;
     }
 
     @BeforeEach
@@ -58,12 +59,17 @@ class UserServiceImplTest {
             new User("egreen", "오민규", "p5", "giyeon15@gmail.com", Level.GOLD, 100,
                 Integer.MAX_VALUE)
         );
+
     }
 
     @Test
+    @DirtiesContext
     void upgradeLevelsTest() throws SQLException {
         userRepository.deleteAll();
         users.forEach(userRepository::add);
+
+        MockMailSender mockMailSender = new MockMailSender();
+        ((UserServiceImpl) userService).setEmailUtils(mockMailSender);
 
         userService.upgradeLevels();
         checkLevelUpgrade(users.get(0), false);
@@ -71,6 +77,11 @@ class UserServiceImplTest {
         checkLevelUpgrade(users.get(2), false);
         checkLevelUpgrade(users.get(3), true);
         checkLevelUpgrade(users.get(4), false);
+
+        List<String> request = mockMailSender.getRequests();
+        assertThat(request.size()).isEqualTo(2);
+        assertThat(request.get(0)).isEqualTo(users.get(1).getEmail());
+        assertThat(request.get(1)).isEqualTo(users.get(3).getEmail());
 
     }
 
@@ -99,7 +110,9 @@ class UserServiceImplTest {
     void upgradeAllOrNoting() {
 
         TestUserService testUserService = new TestUserService(userRepository,
-            userLevelUpgradePolicy, transactionManager, emailUtils);
+            userLevelUpgradePolicy, transactionManager,
+            emailDTO -> System.out.println("Eamil Send  = " + emailDTO));
+
         testUserService.setId("dmadnite1");
         userRepository.deleteAll();
         users.forEach(userRepository::add);
@@ -149,9 +162,23 @@ class UserServiceImplTest {
 
         public TestUserService(UserRepository userRepository,
             UserLevelUpgradePolicy userLevelUpgradePolicy,
-            PlatformTransactionManager transactionManager,
-            EmailUtils emailUtils) {
-            super(userRepository, userLevelUpgradePolicy, transactionManager, emailUtils);
+            PlatformTransactionManager transactionManager, EmailUtils emailUtil) {
+            super(userRepository, userLevelUpgradePolicy, transactionManager, emailUtil);
+
+        }
+    }
+
+    static class MockMailSender implements EmailUtils {
+
+        private List<String> requests = new ArrayList<>();
+
+        public List<String> getRequests() {
+            return requests;
+        }
+
+        @Override
+        public void send(EmailDTO emailDTO) {
+            requests.add(emailDTO.getReceiver());
         }
     }
 }

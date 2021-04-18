@@ -50,6 +50,7 @@ public class AppConfig {
         return new EmailUtilsImpl(mailSender());
     }
 
+
     @Bean
     public DataSource dataSource() {
         SimpleDriverDataSource datasource = new SimpleDriverDataSource();

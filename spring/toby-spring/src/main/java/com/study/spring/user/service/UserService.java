@@ -9,6 +9,5 @@ public interface UserService {
 
     void upgradeLevel(User user);
 
-
     void add(User user);
 }
