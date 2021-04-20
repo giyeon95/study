@@ -5,31 +5,23 @@ import com.study.spring.email.EmailUtils;
 import com.study.spring.user.domain.Level;
 import com.study.spring.user.domain.User;
 import com.study.spring.user.repository.UserRepository;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import javax.sql.DataSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.datasource.DataSourceUtils;
-import org.springframework.jdbc.support.SQLErrorCodes;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserLevelUpgradePolicy userLevelUpgradePolicy;
-    private final PlatformTransactionManager transactionManager;
     private EmailUtils emailUtils;
 
     public UserServiceImpl(UserRepository userRepository,
         UserLevelUpgradePolicy userLevelUpgradePolicy,
-        PlatformTransactionManager transactionManager, EmailUtils emailUtils) {
+        EmailUtils emailUtils) {
         this.userRepository = userRepository;
         this.userLevelUpgradePolicy = userLevelUpgradePolicy;
-        this.transactionManager = transactionManager;
         this.emailUtils = emailUtils;
     }
 
@@ -39,20 +31,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void upgradeLevels() throws SQLException {
-
-        TransactionStatus status = transactionManager
-            .getTransaction(new DefaultTransactionDefinition());
-
-        try {
-            List<User> users = userRepository.getAll();
-            users.forEach(this::upgradeLevel);
-            transactionManager.commit(status);
-
-        } catch (RuntimeException e) {
-            transactionManager.rollback(status);
-            throw e;
-        }
-
+        List<User> users = userRepository.getAll();
+        users.forEach(this::upgradeLevel);
     }
 
 

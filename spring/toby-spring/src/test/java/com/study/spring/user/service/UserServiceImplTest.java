@@ -30,6 +30,7 @@ class UserServiceImplTest {
     private final UserRepository userRepository;
     private final UserLevelUpgradePolicy userLevelUpgradePolicy;
     private final PlatformTransactionManager transactionManager;
+    private final UserServiceImpl userServiceImpl;
 
     List<User> users;
 
@@ -38,11 +39,12 @@ class UserServiceImplTest {
         UserRepository userRepository,
         UserLevelUpgradePolicy userLevelUpgradePolicy,
         PlatformTransactionManager transactionManager,
-        EmailUtils emailUtils) {
+        UserServiceImpl userServiceImpl) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.userLevelUpgradePolicy = userLevelUpgradePolicy;
         this.transactionManager = transactionManager;
+        this.userServiceImpl = userServiceImpl;
     }
 
     @BeforeEach
@@ -69,9 +71,10 @@ class UserServiceImplTest {
         users.forEach(userRepository::add);
 
         MockMailSender mockMailSender = new MockMailSender();
-        ((UserServiceImpl) userService).setEmailUtils(mockMailSender);
 
-        userService.upgradeLevels();
+        userServiceImpl.setEmailUtils(mockMailSender);
+
+        this.userService.upgradeLevels();
         checkLevelUpgrade(users.get(0), false);
         checkLevelUpgrade(users.get(1), true);
         checkLevelUpgrade(users.get(2), false);
@@ -109,16 +112,19 @@ class UserServiceImplTest {
     @DisplayName("강제 예외 발생을 통한 테스트")
     void upgradeAllOrNoting() {
 
-        TestUserService testUserService = new TestUserService(userRepository,
-            userLevelUpgradePolicy, transactionManager,
+        TestUserService testUserService = new TestUserService(
+            userRepository,
+            userLevelUpgradePolicy,
             emailDTO -> System.out.println("Eamil Send  = " + emailDTO));
+
+        UserServiceTx userServiceTx = new UserServiceTx(testUserService, transactionManager);
 
         testUserService.setId("dmadnite1");
         userRepository.deleteAll();
         users.forEach(userRepository::add);
 
         try {
-            testUserService.upgradeLevels();
+            userServiceTx.upgradeLevels();
             fail("TestUserServcice Exception expected");
         } catch (TestUserServiceException | SQLException e) {
 
@@ -147,6 +153,12 @@ class UserServiceImplTest {
 
         private String id;
 
+        public TestUserService(UserRepository userRepository,
+            UserLevelUpgradePolicy userLevelUpgradePolicy, EmailUtils emailUtils) {
+            super(userRepository, userLevelUpgradePolicy, emailUtils);
+        }
+
+
         public void setId(String id) {
             this.id = id;
         }
@@ -160,12 +172,7 @@ class UserServiceImplTest {
             super.upgradeLevel(user);
         }
 
-        public TestUserService(UserRepository userRepository,
-            UserLevelUpgradePolicy userLevelUpgradePolicy,
-            PlatformTransactionManager transactionManager, EmailUtils emailUtil) {
-            super(userRepository, userLevelUpgradePolicy, transactionManager, emailUtil);
 
-        }
     }
 
     static class MockMailSender implements EmailUtils {

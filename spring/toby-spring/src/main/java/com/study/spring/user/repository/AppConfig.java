@@ -6,6 +6,7 @@ import com.study.spring.user.service.DefaultUserLevelUpgradePolicy;
 import com.study.spring.user.service.UserLevelUpgradePolicy;
 import com.study.spring.user.service.UserService;
 import com.study.spring.user.service.UserServiceImpl;
+import com.study.spring.user.service.UserServiceTx;
 import java.util.Properties;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,18 @@ public class AppConfig {
 
     @Bean
     public UserService userService() {
-        return new UserServiceImpl(userRepository(), userLevelUpgradePolicy(), transactionManager(), emailUtils());
+//        return new UserServiceImpl(userRepository(), userLevelUpgradePolicy(), emailUtils());
+        return new UserServiceTx(
+            userServiceImpl(), transactionManager());
+//        return new UserServiceImpl(userRepository(), userLevelUpgradePolicy(), emailUtils());
+//        return new UserServiceTx(userRepository(), userLevelUpgradePolicy(), transactionManager(), emailUtils());
     }
+
+    @Bean
+    public UserServiceImpl userServiceImpl() {
+        return new UserServiceImpl(userRepository(), userLevelUpgradePolicy(), emailUtils());
+    }
+
 
     @Bean
     public UserLevelUpgradePolicy userLevelUpgradePolicy() {
@@ -56,7 +67,7 @@ public class AppConfig {
         SimpleDriverDataSource datasource = new SimpleDriverDataSource();
 
         datasource.setDriverClass(org.mariadb.jdbc.Driver.class);
-        datasource.setUrl("jdbc:mariadb://localhost:13306/test");
+        datasource.setUrl("jdbc:mariadb://localhost:3306/test");
         datasource.setUsername("root");
         datasource.setPassword("1234");
 
