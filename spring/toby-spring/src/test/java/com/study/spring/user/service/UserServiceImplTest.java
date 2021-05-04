@@ -133,6 +133,35 @@ class UserServiceImplTest {
         checkLevelUpgrade(users.get(1), false);
     }
 
+    @Test
+
+    public void upgradeLevels() throws Exception {
+
+        MockUserRepository mockUserRepository = new MockUserRepository(users);
+        MockMailSender mockMailSender = new MockMailSender();
+
+        UserServiceImpl userServiceImpl = new UserServiceImpl(mockUserRepository, userLevelUpgradePolicy, mockMailSender);
+
+        userServiceImpl.upgradeLevels();
+
+        List<User> updated = mockUserRepository.getUpdated();
+        assertThat(updated.size()).isEqualTo(2);
+
+        checkUserAndLevel(updated.get(0), "bjoytouch", Level.SILVER);
+        checkUserAndLevel(updated.get(1), "dmadnite1", Level.GOLD);
+
+
+        List<String> request = mockMailSender.getRequests();
+        assertThat(request.size()).isEqualTo(2);
+        assertThat(request.get(0)).isEqualTo(users.get(1).getEmail());
+        assertThat(request.get(1)).isEqualTo(users.get(3).getEmail());
+    }
+
+    private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel) {
+        assertThat(updated.getId()).isEqualTo(expectedId);
+        assertThat(updated.getLevel()).isEqualTo(expectedLevel);
+    }
+
 
     private void checkLevelUpgrade(User user, boolean upgraded) {
         User userUpdate = userRepository.get(user.getId());
@@ -186,6 +215,51 @@ class UserServiceImplTest {
         @Override
         public void send(EmailDTO emailDTO) {
             requests.add(emailDTO.getReceiver());
+        }
+    }
+
+    static class MockUserRepository implements UserRepository {
+
+        private final List<User> users;
+
+        private final List<User> updated = new ArrayList<>();
+
+        public MockUserRepository(List<User> users) {
+            this.users = users;
+        }
+
+        public List<User> getUpdated() {
+            return this.updated;
+        }
+
+        @Override
+        public void add(User user) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public User get(String id) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<User> getAll() {
+            return this.users;
+        }
+
+        @Override
+        public void deleteAll() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int getCount() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void update(User user) {
+            this.updated.add(user);
         }
     }
 }
