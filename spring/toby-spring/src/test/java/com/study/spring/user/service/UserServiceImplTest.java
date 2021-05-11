@@ -4,6 +4,11 @@ import static com.study.spring.user.service.DefaultUserLevelUpgradePolicy.MIN_LO
 import static com.study.spring.user.service.DefaultUserLevelUpgradePolicy.MIN_RECOMMEND_FOR_GOLD;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.study.spring.email.EmailDTO;
 import com.study.spring.email.EmailUtils;
@@ -18,8 +23,11 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -137,24 +145,43 @@ class UserServiceImplTest {
 
     public void upgradeLevels() throws Exception {
 
-        MockUserRepository mockUserRepository = new MockUserRepository(users);
-        MockMailSender mockMailSender = new MockMailSender();
-
+//        MockUserRepository mockUserRepository = new MockUserRepository(users);
+        UserRepository mockUserRepository = mock(UserRepository.class);
+        when(mockUserRepository.getAll()).thenReturn(this.users);
+//        MockMailSender mockMailSender = new MockMailSender();
+        EmailUtils mockMailSender = mock(EmailUtils.class);
         UserServiceImpl userServiceImpl = new UserServiceImpl(mockUserRepository, userLevelUpgradePolicy, mockMailSender);
 
         userServiceImpl.upgradeLevels();
 
-        List<User> updated = mockUserRepository.getUpdated();
-        assertThat(updated.size()).isEqualTo(2);
+        verify(mockUserRepository, times(2)).update(any(User.class));
+        verify(mockUserRepository, times(2)).update(any(User.class));
+        verify(mockUserRepository).update(users.get(1));
 
-        checkUserAndLevel(updated.get(0), "bjoytouch", Level.SILVER);
-        checkUserAndLevel(updated.get(1), "dmadnite1", Level.GOLD);
+        assertThat(users.get(1).getLevel()).isEqualTo(Level.SILVER);
+        verify(mockUserRepository).update(users.get(3));
+        assertThat(users.get(3).getLevel()).isEqualTo(Level.GOLD);
+
+        ArgumentCaptor<EmailDTO> emailDtoArg = ArgumentCaptor.forClass(EmailDTO.class);
+
+        verify(mockMailSender, times(2)).send(emailDtoArg.capture());
+
+        List<EmailDTO> mailMessages = emailDtoArg.getAllValues();
+        assertThat(mailMessages.get(0).getReceiver()).isEqualTo(users.get(1).getEmail());
+        assertThat(mailMessages.get(1).getReceiver()).isEqualTo(users.get(3).getEmail());
 
 
-        List<String> request = mockMailSender.getRequests();
-        assertThat(request.size()).isEqualTo(2);
-        assertThat(request.get(0)).isEqualTo(users.get(1).getEmail());
-        assertThat(request.get(1)).isEqualTo(users.get(3).getEmail());
+//        List<User> updated = mockUserRepository.getUpdated();
+//        assertThat(updated.size()).isEqualTo(2);
+
+//        checkUserAndLevel(updated.get(0), "bjoytouch", Level.SILVER);
+//        checkUserAndLevel(updated.get(1), "dmadnite1", Level.GOLD);
+//
+//
+//        List<String> request = mockMailSender.getRequests();
+//        assertThat(request.size()).isEqualTo(2);
+//        assertThat(request.get(0)).isEqualTo(users.get(1).getEmail());
+//        assertThat(request.get(1)).isEqualTo(users.get(3).getEmail());
     }
 
     private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel) {
