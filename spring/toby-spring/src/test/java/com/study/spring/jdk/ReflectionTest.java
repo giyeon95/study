@@ -1,11 +1,12 @@
 package com.study.spring.jdk;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import lombok.RequiredArgsConstructor;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ReflectionTest {
@@ -33,7 +34,6 @@ public class ReflectionTest {
         assertThat(hello.sayHi("Toby")).isEqualTo("Hi Toby");
         assertThat(hello.sayThankYou("Toby")).isEqualTo("Thank You Toby");
 
-
         Hello proxyHello = new HelloUppercase(hello);
         assertThat(proxyHello.sayHello("Toby")).isEqualTo("HELLO TOBY");
         assertThat(proxyHello.sayHi("Toby")).isEqualTo("HI TOBY");
@@ -41,10 +41,35 @@ public class ReflectionTest {
     }
 
 
+    Hello proxiedHello = (Hello) Proxy.newProxyInstance(
+        getClass().getClassLoader(),
+        new Class[]{Hello.class},
+        new UppercaseHandler(new HelloTarget())
+    );
+
+
+    @RequiredArgsConstructor
+    public class UppercaseHandler implements InvocationHandler {
+
+        private final Object target;
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            Object ret = method.invoke(target, args);
+            if(method.getName().startsWith("say") && ret instanceof String) {
+                    return ((String) ret).toUpperCase();
+            }
+
+            return ret;
+        }
+    }
 
     interface Hello {
+
         String sayHello(String name);
+
         String sayHi(String name);
+
         String sayThankYou(String name);
     }
 

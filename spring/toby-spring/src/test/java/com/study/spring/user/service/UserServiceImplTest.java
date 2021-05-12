@@ -16,6 +16,7 @@ import com.study.spring.user.domain.Level;
 import com.study.spring.user.domain.User;
 import com.study.spring.user.repository.AppConfig;
 import com.study.spring.user.repository.UserRepository;
+import java.lang.reflect.Proxy;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -125,14 +126,19 @@ class UserServiceImplTest {
             userLevelUpgradePolicy,
             emailDTO -> System.out.println("Eamil Send  = " + emailDTO));
 
-        UserServiceTx userServiceTx = new UserServiceTx(testUserService, transactionManager);
+//        UserServiceTx userServiceTx = new UserServiceTx(testUserService, transactionManager);
+        UserService proxyUserService = (UserService) Proxy.newProxyInstance(
+            getClass().getClassLoader(),
+            new Class[]{UserService.class},
+            new TransactionHandler(testUserService, transactionManager, "upgradeLevels")
+        );
 
         testUserService.setId("dmadnite1");
         userRepository.deleteAll();
         users.forEach(userRepository::add);
 
         try {
-            userServiceTx.upgradeLevels();
+            proxyUserService.upgradeLevels();
             fail("TestUserServcice Exception expected");
         } catch (TestUserServiceException | SQLException e) {
 
@@ -150,7 +156,8 @@ class UserServiceImplTest {
         when(mockUserRepository.getAll()).thenReturn(this.users);
 //        MockMailSender mockMailSender = new MockMailSender();
         EmailUtils mockMailSender = mock(EmailUtils.class);
-        UserServiceImpl userServiceImpl = new UserServiceImpl(mockUserRepository, userLevelUpgradePolicy, mockMailSender);
+        UserServiceImpl userServiceImpl = new UserServiceImpl(mockUserRepository,
+            userLevelUpgradePolicy, mockMailSender);
 
         userServiceImpl.upgradeLevels();
 
@@ -169,7 +176,6 @@ class UserServiceImplTest {
         List<EmailDTO> mailMessages = emailDtoArg.getAllValues();
         assertThat(mailMessages.get(0).getReceiver()).isEqualTo(users.get(1).getEmail());
         assertThat(mailMessages.get(1).getReceiver()).isEqualTo(users.get(3).getEmail());
-
 
 //        List<User> updated = mockUserRepository.getUpdated();
 //        assertThat(updated.size()).isEqualTo(2);
