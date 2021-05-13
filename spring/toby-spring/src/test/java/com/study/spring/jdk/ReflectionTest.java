@@ -34,18 +34,15 @@ public class ReflectionTest {
         assertThat(hello.sayHi("Toby")).isEqualTo("Hi Toby");
         assertThat(hello.sayThankYou("Toby")).isEqualTo("Thank You Toby");
 
-        Hello proxyHello = new HelloUppercase(hello);
+        Hello proxyHello =  (Hello) Proxy.newProxyInstance(
+            getClass().getClassLoader(),
+            new Class[]{Hello.class},
+            new UppercaseHandler(new HelloTarget())
+        );
         assertThat(proxyHello.sayHello("Toby")).isEqualTo("HELLO TOBY");
         assertThat(proxyHello.sayHi("Toby")).isEqualTo("HI TOBY");
         assertThat(proxyHello.sayThankYou("Toby")).isEqualTo("THANK YOU TOBY");
     }
-
-
-    Hello proxiedHello = (Hello) Proxy.newProxyInstance(
-        getClass().getClassLoader(),
-        new Class[]{Hello.class},
-        new UppercaseHandler(new HelloTarget())
-    );
 
 
     @RequiredArgsConstructor

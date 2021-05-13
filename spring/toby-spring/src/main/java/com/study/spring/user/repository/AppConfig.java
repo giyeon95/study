@@ -2,6 +2,8 @@ package com.study.spring.user.repository;
 
 import com.study.spring.email.EmailUtils;
 import com.study.spring.email.EmailUtilsImpl;
+import com.study.spring.email.MessageFactoryBean;
+import com.study.spring.template.PTxProxyFactoryBean;
 import com.study.spring.user.service.DefaultUserLevelUpgradePolicy;
 import com.study.spring.user.service.UserLevelUpgradePolicy;
 import com.study.spring.user.service.UserService;
@@ -31,11 +33,9 @@ public class AppConfig {
 
     @Bean
     public UserService userService() {
-//        return new UserServiceImpl(userRepository(), userLevelUpgradePolicy(), emailUtils());
-        return new UserServiceTx(
-            userServiceImpl(), transactionManager());
-//        return new UserServiceImpl(userRepository(), userLevelUpgradePolicy(), emailUtils());
-//        return new UserServiceTx(userRepository(), userLevelUpgradePolicy(), transactionManager(), emailUtils());
+        return (UserService) new PTxProxyFactoryBean<UserService>(userServiceImpl(),
+            transactionManager(),
+            "upgradeLevels", UserService.class);
     }
 
     @Bean
@@ -87,5 +87,10 @@ public class AppConfig {
         mailSender.setJavaMailProperties(prop);
 
         return mailSender;
+    }
+
+    @Bean
+    public MessageFactoryBean message() {
+        return new MessageFactoryBean("hello world!");
     }
 }
