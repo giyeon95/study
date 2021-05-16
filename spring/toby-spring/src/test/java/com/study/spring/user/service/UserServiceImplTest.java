@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.study.spring.email.EmailDTO;
 import com.study.spring.email.EmailUtils;
+import com.study.spring.template.PTxProxyFactoryBean;
 import com.study.spring.user.domain.Level;
 import com.study.spring.user.domain.User;
 import com.study.spring.user.repository.AppConfig;
@@ -27,6 +28,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.annotation.DirtiesContext;
@@ -40,6 +43,7 @@ class UserServiceImplTest {
     private final UserLevelUpgradePolicy userLevelUpgradePolicy;
     private final PlatformTransactionManager transactionManager;
     private final UserServiceImpl userServiceImpl;
+
 
     List<User> users;
 
@@ -118,20 +122,18 @@ class UserServiceImplTest {
     }
 
     @Test
+    @DirtiesContext
     @DisplayName("강제 예외 발생을 통한 테스트")
-    void upgradeAllOrNoting() {
-
+    void upgradeAllOrNoting() throws Exception {
         TestUserService testUserService = new TestUserService(
             userRepository,
             userLevelUpgradePolicy,
             emailDTO -> System.out.println("Eamil Send  = " + emailDTO));
 
-//        UserServiceTx userServiceTx = new UserServiceTx(testUserService, transactionManager);
-        UserService proxyUserService = (UserService) Proxy.newProxyInstance(
-            getClass().getClassLoader(),
-            new Class[]{UserService.class},
-            new TransactionHandler(testUserService, transactionManager, "upgradeLevels")
-        );
+        PTxProxyFactoryBean pTxProxyFactoryBean = new PTxProxyFactoryBean(testUserService,
+            transactionManager, "upgradeLevels", UserService.class);
+
+        UserService proxyUserService =  (UserService) pTxProxyFactoryBean.getObject();
 
         testUserService.setId("dmadnite1");
         userRepository.deleteAll();

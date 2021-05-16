@@ -32,8 +32,8 @@ public class AppConfig {
     }
 
     @Bean
-    public UserService userService() {
-        return (UserService) new PTxProxyFactoryBean<UserService>(userServiceImpl(),
+    public PTxProxyFactoryBean userService() {
+        return new PTxProxyFactoryBean(userServiceImpl(),
             transactionManager(),
             "upgradeLevels", UserService.class);
     }
